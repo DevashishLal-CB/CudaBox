@@ -32,6 +32,7 @@ set_property(GLOBAL PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 # CUDA Flags
 set(CUDABOX_CUDA_FLAGS
   "--use_fast_math"
+  "-lineinfo"
 )
 
 # Torch
@@ -57,4 +58,5 @@ include_directories(
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
+add_subdirectory("csrc/elementwise")
 add_subdirectory("csrc/gemm")

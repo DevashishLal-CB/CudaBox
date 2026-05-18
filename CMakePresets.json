@@ -18,7 +18,8 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_CUDA_HOST_COMPILER": "clang++"
+        "CMAKE_CUDA_HOST_COMPILER": "clang++",
+        "CMAKE_CUDA_FLAGS": "-allow-unsupported-compiler"
       },
       "condition": {
         "type": "equals",

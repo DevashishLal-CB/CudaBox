@@ -18,6 +18,7 @@ CompileFlags:
     - "--generate-code*"
     # strip CUDA flags unknown to clang
     - "-ccbin*"
+    - "-allow-unsupported-compiler"
     - "--compiler-options*"
     - "--expt-extended-lambda"
     - "--expt-relaxed-constexpr"

@@ -25,8 +25,8 @@ __global__ void tiled_gemm_kernel(T *__restrict__ A, T *__restrict__ B,
   T accumulator = {0};
 
   // 0 -> ceil(K / TILE_SIZE) tiles would be iterated upon to cover
-  for (unsigned int tile_idx = 0; tile_idx < ceil_div(K, TILE_SIZE);
-       ++tile_idx) {
+  for (unsigned int tile_idx = 0;
+       tile_idx < cudabox::utils::ceil_div(K, TILE_SIZE); ++tile_idx) {
     // load phase
 
     // load tile of M
@@ -63,7 +63,8 @@ cudaError_t tiled_gemm_launch(T *A, T *B, T *C, unsigned int M, unsigned int N,
                               unsigned int K, cudaStream_t stream = 0) {
   constexpr unsigned int tile_size = 16;
 
-  dim3 nblks(ceil_div(N, tile_size), ceil_div(M, tile_size), 1);
+  dim3 nblks(cudabox::utils::ceil_div(N, tile_size),
+             cudabox::utils::ceil_div(M, tile_size), 1);
   dim3 nthrs(tile_size, tile_size, 1);
 
   constexpr size_t smem_size = 2 * tile_size * tile_size * sizeof(T);
@@ -110,9 +111,7 @@ torch::Tensor tiled_gemm(const torch::Tensor &mat_a,
       tiled_gemm_launch(mat_a.data_ptr<float>(), mat_b.data_ptr<float>(),
                         mat_c.data_ptr<float>(), M, N, K, stream);
 
-  TORCH_CHECK(status == cudaSuccess,
-              "tgemm failed with error code " +
-                  std::string(cudaGetErrorString(status)));
+  TORCH_CHECK(status == cudaSuccess, "tgemm failed");
 
   return mat_c;
 }

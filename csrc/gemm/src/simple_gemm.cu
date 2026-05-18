@@ -33,7 +33,8 @@ cudaError_t simple_gemm_launch(T *A, T *B, T *C, unsigned int M, unsigned int N,
                                unsigned int K, cudaStream_t stream = 0) {
   constexpr unsigned int tile_size = 32;
 
-  dim3 nblks(ceil_div(N, tile_size), ceil_div(M, tile_size), 1);
+  dim3 nblks(cudabox::utils::ceil_div(N, tile_size),
+             cudabox::utils::ceil_div(M, tile_size), 1);
   dim3 nthrs(tile_size, tile_size, 1);
 
   cudaLaunchConfig_t config{};
@@ -73,9 +74,7 @@ torch::Tensor simple_gemm(const torch::Tensor &mat_a,
       simple_gemm_launch(mat_a.data_ptr<float>(), mat_b.data_ptr<float>(),
                          mat_c.data_ptr<float>(), M, N, K, stream);
 
-  TORCH_CHECK(status == cudaSuccess,
-              "sgemm failed with error code " +
-                  std::string(cudaGetErrorString(status)));
+  TORCH_CHECK(status == cudaSuccess, "sgemm failed");
 
   return mat_c;
 }

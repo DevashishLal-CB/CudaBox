@@ -1,6 +1,43 @@
 {
-    "C_Cpp.default.compilerPath": "c:/program files/nvidia gpu computing toolkit/cuda/v12.8/bin/nvcc.exe",
-    "files.associations": {
-        "cmath": "cpp"
-    }
+  // Python interpreter for this workspace (uv venv from oss_dev_env setup)
+  "python.defaultInterpreterPath": "/home/devcode/uv_env/cudabox/bin/python",
+  "python.pythonPath": "/home/devcode/uv_env/cudabox/bin/python",
+
+  // Disable VS Code's built-in save-time actions
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "editor.codeActionsOnSave": {},
+
+  // Per-language overrides — these win over global [python] formatter settings
+  "[python]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {},
+    "editor.defaultFormatter": null
+  },
+  "[json]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null
+  },
+  "[yaml]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": null
+  },
+
+  // Stop common Python formatters/linters from auto-fixing
+  "python.formatting.provider": "none",
+  "python.linting.enabled": false,
+  "ruff.organizeImports": false,
+  "ruff.fixAll": false,
+  "isort.check": false,
+  "black-formatter.path": [],
+
+  // Meta-specific extensions that run on save
+  "meta.formatOnSave": false,
+  "meta.codeActionsOnSave": {},
+  "meta.pyfmt.runOnSave": false,
+  "arc.lint.runOnSave": false,
+  "arc.formatOnSave": false,
+  "fbcode.formatOnSave": false,
+  "fbsource.formatOnSave": false
 }

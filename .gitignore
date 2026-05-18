@@ -184,6 +184,12 @@ tmp*.txt
 work_dirs/
 *.csv
 
+# Benchmark results
+!benchmarks/results/*.csv
+!benchmarks/results/*.png
+benchmarks/results/*.html
+*.ncu-rep
+
 !logo.png
 
 # Prerequisites
