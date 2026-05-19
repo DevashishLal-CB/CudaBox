@@ -20,8 +20,8 @@ constexpr int GMEM_SUM_IDX = 1;
 constexpr int GMEM_SIZE = 2;
 
 struct SumReducer {
-  __device__ inline float operator()(float value, int mask = FULL_MASK,
-                                     int thread_count = THREADS_PER_WARP) {
+  __device__ inline static float invoke(float value, int mask = FULL_MASK,
+                                        int thread_count = THREADS_PER_WARP) {
     for (int offset = thread_count / 2; offset > 0; offset /= 2) {
       value += __shfl_down_sync(mask, value, offset);
     }
@@ -30,8 +30,8 @@ struct SumReducer {
 };
 
 struct MaxReducer {
-  __device__ inline float operator()(float value, int mask = FULL_MASK,
-                                     int thread_count = THREADS_PER_WARP) {
+  __device__ inline static float invoke(float value, int mask = FULL_MASK,
+                                        int thread_count = THREADS_PER_WARP) {
     for (int offset = thread_count / 2; offset > 0; offset /= 2) {
       value = fmaxf(value, __shfl_down_sync(mask, value, offset));
     }
@@ -57,9 +57,9 @@ __device__ inline float atomic_max_float(float *addr, float value) {
 
 template <typename Reducer>
 __device__ inline float block_reducer(float thread_val, float *smem,
-                                      const int64_t tid, Reducer reducer) {
+                                      const int64_t tid) {
   // warp-level reduction
-  float warp_val = reducer(thread_val);
+  float warp_val = Reducer::invoke(thread_val);
 
   // thread 0 of each warp writes its partial to shared memory
   if (tid % THREADS_PER_WARP == 0) {
@@ -72,7 +72,7 @@ __device__ inline float block_reducer(float thread_val, float *smem,
     // mask of the first NUM_WARPS lanes in the warp (e.g. 8 warps -> 0xff)
     constexpr unsigned int mask = (1u << NUM_WARPS) - 1u;
     float block_val = smem[tid];
-    block_val = reducer(block_val, mask, NUM_WARPS);
+    block_val = Reducer::invoke(block_val, mask, NUM_WARPS);
 
     if (tid == 0) {
       smem[0] = block_val;
@@ -83,9 +83,9 @@ __device__ inline float block_reducer(float thread_val, float *smem,
   return smem[0];
 }
 
-__global__ void softmax_kernel(const float *__restrict__ in,
-                               float *__restrict__ out,
-                               float *__restrict__ gmem, const int64_t size) {
+__global__ __launch_bounds__(THREADS_PER_BLOCK) void softmax_kernel(
+    const float *__restrict__ in, float *__restrict__ out,
+    float *__restrict__ gmem, const int64_t size) {
   cg::grid_group grid = cg::this_grid();
 
   const int64_t tid = threadIdx.x;
@@ -114,7 +114,7 @@ __global__ void softmax_kernel(const float *__restrict__ in,
   }
 
   // pass 1: block reduction
-  float block_max = block_reducer(thread_max, smem, tid, MaxReducer());
+  float block_max = block_reducer<MaxReducer>(thread_max, smem, tid);
 
   // pass 1: grid reduction
   if (tid == 0) {
@@ -143,7 +143,7 @@ __global__ void softmax_kernel(const float *__restrict__ in,
   }
 
   // pass 2: block reduction
-  float block_sum = block_reducer(thread_sum, smem, tid, SumReducer());
+  float block_sum = block_reducer<SumReducer>(thread_sum, smem, tid);
 
   // pass 2: grid reduction
   if (tid == 0) {
@@ -180,7 +180,7 @@ cudaError_t softmax_launch(const float *in, float *out, float *gmem,
   int blocks_per_sm = 0;
   CUDABOX_CUDA_CALL(cudaOccupancyMaxActiveBlocksPerMultiprocessor(
       &blocks_per_sm, softmax_kernel, THREADS_PER_BLOCK, 0));
-  const int max_cooperative_blocks = sm_count * blocks_per_sm;
+  const int max_cooperative_blocks = sm_count * 1;
 
   const int64_t requested_blocks =
       (size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
@@ -198,7 +198,9 @@ cudaError_t softmax_launch(const float *in, float *out, float *gmem,
   config.attrs = attrs;
   config.numAttrs = 1;
 
-  CUDABOX_LOG_DEBUG("Dispatching softmax, size={}, blocks={}", size, blocks);
+  CUDABOX_LOG_DEBUG(
+      "Dispatching softmax, size={}, blocks={}, sm_count={}, blocks_per_sm={}",
+      size, blocks, sm_count, blocks_per_sm);
   CUDABOX_CUDA_CALL(
       cudaLaunchKernelEx(&config, softmax_kernel, in, out, gmem, size));
 
