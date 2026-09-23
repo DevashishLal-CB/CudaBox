@@ -27,8 +27,11 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/dependencies.cmake)
 # https://github.com/scikit-build/scikit-build-core/pull/994
 find_package(Python COMPONENTS Interpreter Development.Module ${SKBUILD_SABI_COMPONENT} REQUIRED)
 
-# CXX
-set(CMAKE_CXX_STANDARD 17)
+# CXX/CUDA
+# PyTorch 2.7+ requires C++20 for both its C++ and CUDA-facing headers.
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CUDA_STANDARD 20)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 # CXX Flags

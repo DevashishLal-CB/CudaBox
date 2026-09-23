@@ -18,6 +18,7 @@ jobs:
     env:
       CUDA_HOME: /usr/local/cuda
       DEBIAN_FRONTEND: noninteractive
+      UV_MANAGED_PYTHON: "true"
       # Runners have no GPU, so we cross-compile. Target Hopper only for now
       # (sm_90a unlocks the WGMMA/TMA instructions the CUTLASS kernels need).
       # Blackwell (sm_100a/120a) can be appended here later, e.g. "90a;100a".
@@ -27,11 +28,12 @@ jobs:
       CMAKE_ARGS: "-DCMAKE_CUDA_ARCHITECTURES=90a"
 
     steps:
-      - name: Install system dependencies (clang, ninja, git)
+      - name: Install system dependencies (clang, clang tools, ninja, git)
         run: |
           apt-get update
           apt-get install -y --no-install-recommends \
             clang \
+            clang-tools \
             ninja-build \
             git \
             curl \
@@ -42,8 +44,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Set up recent CMake + Ninja
+      - name: Set up CMake 3.31.8 + Ninja
         uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "3.31.8"
 
       - name: Install uv (with Python 3.12)
         uses: astral-sh/setup-uv@v8.2.0
