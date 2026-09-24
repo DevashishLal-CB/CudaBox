@@ -31,7 +31,7 @@ constexpr int FULL_MASK = 0xffffffff;
 constexpr int NUM_WARPS = THREADS_PER_BLOCK / THREADS_PER_WARP;
 constexpr int BLOCKS_PER_CLUSTER = 8;
 
-__host__ __device__ inline int ceil_div(int a, int b) {
+__host__ __device__ constexpr int ceil_div(int a, int b) {
   return (a + b - 1) / b;
 }
 

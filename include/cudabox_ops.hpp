@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include <torch/torch.h>
 
 namespace cudabox {
@@ -7,6 +9,11 @@ namespace cudabox {
 namespace algorithms {
 
 torch::Tensor histogram(const torch::Tensor &tensor, int64_t num_bins);
+
+torch::Tensor flash_attention(const torch::Tensor &query,
+                              const torch::Tensor &key,
+                              const torch::Tensor &value, bool is_causal,
+                              std::optional<double> scale);
 
 } // namespace algorithms
 

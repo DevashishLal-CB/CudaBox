@@ -25,6 +25,7 @@ progression so you can compare implementations.
 | | tiled gemm | `cudabox.gemm.tiled_gemm` | Shared-memory tiled matmul |
 | | pipelined TMA/MMA gemm (SM90) | `cudabox.gemm.sm90_pipelined_tma_mma_gemm` | CUTLASS-based pipelined TMA + WGMMA |
 | **algorithms** | histogram | `cudabox.algorithms.histogram` | Binned histogram |
+| | flash attention | `cudabox.algorithms.flash_attention` | Tiled CUDA forward with online softmax |
 
 ## Project Structure
 
@@ -47,6 +48,7 @@ CudaBox/
 │   │   ├── CMakeLists.txt
 │   │   └── src/
 │   │       ├── algorithms_ops.cpp   # TORCH_LIBRARY op registration for this family
+│   │       ├── flash_attention/flash_attention.cu
 │   │       └── histogram/histogram.cu
 │   ├── elementwise/
 │   │   ├── CMakeLists.txt
@@ -166,6 +168,7 @@ to `benchmarks/results/`:
 # Need to be executed from the repo root
 python ./benchmarks/bench_softmax.py
 python ./benchmarks/bench_gemm.py
+python ./benchmarks/bench_flash_attention.py
 ```
 
 Optional C++ microbenchmarks (nvbench) for GEMM can be enabled at configure time

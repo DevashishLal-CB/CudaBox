@@ -7,7 +7,10 @@ name = "cudabox"
 version = "0.1.0"
 authors = [{ name = "Devashish Lal", email = "laldevashish@gmail.com" }]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+  "matplotlib",
+  "pandas",
+]
 
 [tool.wheel]
 exclude = [

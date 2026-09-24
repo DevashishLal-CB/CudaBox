@@ -1,4 +1,5 @@
 set(SOURCES
+  "src/flash_attention/flash_attention.cu"
   "src/histogram/histogram.cu"
   "src/algorithms_ops.cpp"
 )
